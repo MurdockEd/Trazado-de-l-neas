@@ -1,0 +1,72 @@
+#include<gl/glut.h>
+#include<math.h>
+
+
+void LineDDA(int x1, int y1, int x2, int y2)
+{
+	// Encuentra Δm = max (| Δx |, | Δy |) 
+	int dm = 0;
+	if (abs(x2 - x1) >= abs(y2 - y1)) // abs es una función para valor absoluto
+		dm = abs(x2 - x1); // x es la dirección de la longitud
+	else
+		dm = abs(y2 - y1); // y es la dirección de la longitud
+
+	// Encuentra ∆𝒙⁄∆𝒎, y (∆𝒚) ⁄∆𝒎, la dirección de la longitud será igual a 1
+	float dx = (float)(x2 - x1) / dm;
+	float dy = (float)(y2 - y1) / dm;
+
+	// Redondea las coordenadas actuales
+	float x = x1 + 0.5;
+	float y = y1 + 0.5;
+
+	// Dibuja puntos en un bucle, la dirección x aumenta a ∆𝒙⁄∆𝒎 y la dirección y aumenta a (∆𝒚) ⁄∆𝒎
+	glColor3f(0.0f, 0.0f, 1.0f); // azul
+	glPointSize(5);
+	for (int i = 0; i < dm; i++)
+	{
+		glBegin(GL_POINTS);
+		glVertex2i((int)x, (int)y);
+		glEnd();
+		x += dx;
+		y += dy;
+	}
+}
+
+void myDisplay()
+{
+	glClearColor(1.0, 1.0, 1.0, 1.0); // Color claro, blanco
+	glClear(GL_COLOR_BUFFER_BIT); // Elimina el búfer, usa el color claro anterior para eliminar
+
+	glColor3f(1.0f, 0.0f, 0.0f); // Establecer el color, rojo
+	glLineWidth(5);
+	glBegin(GL_LINES);
+	glVertex3f(200.0f, 200.0f, 0.0f);
+	glVertex3f(400.0f, 400.0f, 0.0f);
+	glEnd();
+
+	//LineDDA(0, 0, 200, 200);
+	//LineDDA(200, 200, 0, 0);
+	LineDDA(0, 200, 100, 100);
+
+	glFlush(); // Actualización forzada
+}
+
+void Reshape(int w, int h)
+{
+	glViewport(0, 0, (GLsizei)w, (GLsizei)h); // Definir el tamaño de la ventana gráfica
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0.0, (GLdouble)w, 0.0, (GLdouble)h); // Hacer que las coordenadas de la esquina inferior izquierda sean (0, 0) y las coordenadas de la esquina superior derecha sean (w, h)
+}
+
+void main(int argc, char* argv[])
+{
+	glutInit(&argc, argv); // Inicializar GLUT
+	glutInitDisplayMode(GLUT_RGB | GLUT_SINGLE); // Modo de visualización
+	glutInitWindowPosition(100, 100); // Posición de la ventana, las coordenadas de la esquina superior izquierda de la ventana en la pantalla
+	glutInitWindowSize(400, 400); // Tamaño de la ventana
+	glutCreateWindow("Lineas DDA"); // Crea una ventana, el parámetro es el título de la ventana
+	glutDisplayFunc(myDisplay); // Dígale a GLUT qué función es responsable del dibujo, es decir, registre una función de dibujo myDisplay
+	glutReshapeFunc(Reshape); // Cuando la ventana cambia, que función se usa para redibujar
+	glutMainLoop(); // Maneja la monitorización del bucle sin fin
+}
